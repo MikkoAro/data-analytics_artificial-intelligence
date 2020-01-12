@@ -1,7 +1,7 @@
 # Harjoitustyö
 
 Python  
-pandas
+pandas  
 REST API  
 SQL  
 Regex
