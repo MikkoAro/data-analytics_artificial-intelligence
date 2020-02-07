@@ -23,7 +23,9 @@ if __name__ == "__main__":
         epoch = float(time.mktime(time.strptime(date, '%Y-%m-%d')))
         return epoch
 
-    rdd = lines.map(lambda x : {"Date": convert(x['Date']), "Open": x['Open'], "High":  float(x['High']), "Low": float(x['Low']), "Close": x['Close'], "Adj Close": x['Adj Close'], "Volume": x['Vol$
+    rdd = lines.map(lambda x : {"Date": convert(x['Date']), "Open": x['Open'], "High":  float(x['High']), 
+                                "Low": float(x['Low']), "Close": x['Close'], "Adj Close": x['Adj Close'], 
+                                "Volume": x['Volume']})
     rdd.pprint()
     rdd.foreachRDD(lambda z: z.saveToMongoDB('mongodb://192.168.1.21:27017/tsla-stockdb.stockdata'))
     ssc.start()
