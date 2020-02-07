@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+</head>
+<body>
+    <div id="container" style="height: 400px; max-width: 1500px; margin-left: auto; margin-right: auto;"></div>
+    <script type="text/javascript">
+        var seriesOptions = [],
+            seriesCounter = 0,
+            names = ['Low', 'High']
+
+        function createChart() {
+            Highcharts.stockChart('container', {
+                title: {
+                    text: 'TSLA'
+                },
+
+                rangeSelector: {
+                    selected: 1
+                },
+
+                yAxis: {
+                    labels: {
+                        formatter: function () {
+                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                        }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                },
+
+                xAxis: {
+                    type: 'datetime'
+
+                },
+
+                plotOptions: {
+                    series: {
+                        compare: 'percent',
+                        showInNavigator: true,
+                        turboThreshold: 2500
+                    }
+                },
+
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2,
+                    split: true
+                },
+
+                series: seriesOptions
+            });
+        };
+
+        function success(data, id) {
+            if (id == 1) {
+                var name = 'High';
+                var color = '#87a8f5';
+            } else {
+                var name = 'Low';
+                var color = '#BF0B23';
+            }
+
+            var i = names.indexOf(name);
+            seriesOptions[i] = {
+                name: name,
+                data: data,
+                color: color
+            };
+            seriesCounter += 1;
+
+            if (seriesCounter === names.length) {
+                createChart();
+            }
+        }
+
+        function getData() {
+            date = [], high = [], low = [];
+            $.ajax({
+                dataType: 'json',
+                type: 'GET',
+                url: './reload',
+                success: function (data) {
+                    var stockDataArr = data,
+                        date = [],
+                        high = [],
+                        low = [];
+                    stockDataArr.forEach(function (e) {
+                        high.push([e.Date * 1000, e.High]); //Epoch to ms should have been made in Spark
+                        low.push([e.Date * 1000, e.Low]);   //Epoch to ms should have been made in Spark
+                    });
+                    success(low);
+                    success(high, 1);
+                }
+            });
+        };
+        getData();
+    </script>
+</body>
+</html>
+
+
+
+
+
